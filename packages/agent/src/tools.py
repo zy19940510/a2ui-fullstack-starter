@@ -1,0 +1,116 @@
+from langchain_core.tools import tool
+import httpx
+from ddgs import DDGS
+
+@tool
+def web_search(query: str, max_results: int = 5) -> str:
+    """使用 DuckDuckGo 搜索互联网获取最新信息
+
+    Args:
+        query: 搜索关键词
+        max_results: 返回结果数量，默认 5 条
+
+    Returns:
+        搜索结果摘要
+    """
+    try:
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=max_results))
+
+        if not results:
+            return f"未找到关于 '{query}' 的搜索结果"
+
+        output = f"🔍 搜索结果（共 {len(results)} 条）：\n\n"
+        for i, result in enumerate(results, 1):
+            title = result.get("title", "无标题")
+            body = result.get("body", "无描述")
+            url = result.get("href", "")
+            output += f"{i}. **{title}**\n{body}\n🔗 {url}\n\n"
+
+        return output.strip()
+
+    except Exception as e:
+        return f"搜索失败: {str(e)}"
+
+@tool
+def calculator(expression: str) -> str:
+    """计算数学表达式"""
+    try:
+        result = eval(expression)
+        return str(result)
+    except Exception as e:
+        return f"计算错误: {e}"
+
+@tool
+def get_weather(city: str) -> str:
+    """查询城市天气信息
+
+    Args:
+        city: 城市名称，如 "北京"、"上海"、"London"、"New York"
+
+    Returns:
+        天气信息，包括温度、湿度、风速等
+    """
+    # 城市坐标映射（常用城市）
+    city_coords = {
+        "北京": (39.9042, 116.4074),
+        "上海": (31.2304, 121.4737),
+        "深圳": (22.5431, 114.0579),
+        "广州": (23.1291, 113.2644),
+        "杭州": (30.2741, 120.1551),
+        "成都": (30.5728, 104.0668),
+        "london": (51.5074, -0.1278),
+        "new york": (40.7128, -74.0060),
+        "tokyo": (35.6762, 139.6503),
+        "paris": (48.8566, 2.3522),
+    }
+
+    city_lower = city.lower()
+    if city_lower not in city_coords:
+        return f"抱歉，暂不支持城市 '{city}'。支持的城市：{', '.join(list(city_coords.keys())[:5])} 等"
+
+    lat, lon = city_coords[city_lower]
+
+    try:
+        # 使用 Open-Meteo API（无需 API Key）
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": lat,
+            "longitude": lon,
+            "current_weather": True,
+            "hourly": "temperature_2m,relative_humidity_2m,wind_speed_10m"
+        }
+
+        response = httpx.get(url, params=params, timeout=10.0)
+        response.raise_for_status()
+        data = response.json()
+
+        current = data["current_weather"]
+        temp = current["temperature"]
+        windspeed = current["windspeed"]
+        weather_code = current["weathercode"]
+
+        # 天气代码映射
+        weather_desc_map = {
+            0: "晴空", 1: "基本晴", 2: "局部多云", 3: "阴天",
+            45: "雾", 48: "雾冻",
+            51: "弱毛毛雨", 53: "中毛毛雨", 55: "强毛毛雨",
+            61: "小雨", 63: "中雨", 65: "大雨",
+            71: "小雪", 73: "中雪", 75: "大雪",
+            80: "小阵雨", 81: "中阵雨", 82: "暴雨",
+            85: "小阵雪", 86: "大阵雪",
+            95: "雷暴", 96: "雷暴伴小冰雹", 99: "雷暴伴大冰雹"
+        }
+        weather_desc = weather_desc_map.get(weather_code, "未知")
+
+        return f"""{city} 当前天气：
+🌡️ 温度: {temp}°C
+💨 风速: {windspeed} km/h
+🌤️ 天气: {weather_desc}
+⏰ 更新时间: {current['time']}""".strip()
+
+    except Exception as e:
+        return f"获取天气信息失败: {str(e)}"
+
+def get_tools():
+    return [web_search, calculator, get_weather]
