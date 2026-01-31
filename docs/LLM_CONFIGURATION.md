@@ -1,100 +1,253 @@
-# LLM Provider 配置说明
+# LLM 配置说明
 
-本项目已支持多种 LLM Provider，包括 Ollama、火山方舟（ARK）和 LB One API。
+## 概述
 
-## 快速配置
+本项目使用环境变量管理 LLM 配置，支持通过 `.env` 文件配置 API Key 和模型参数。
 
-在 `packages/agent/.env` 和 `packages/gateway/.env` 中配置：
+## 快速开始
 
-```bash
-# 选择 Provider (ollama/ark/one)
-LLM_PROVIDER=one
-
-# LB One API 配置（默认已配置）
-ONE_BASE_URL=https://lboneapi.longbridge-inc.com/v1
-ONE_API_KEY=sk-WOc49F7TwttlijpI2w4nu70r1jFWqAMiQT818FK0yrOF9dJG
-ONE_MODEL=gpt-5.1
-
-# LLM 参数
-LLM_TEMPERATURE=0.7
-```
-
-## 支持的 Provider
-
-### 1. LB One API (默认)
-
-```bash
-LLM_PROVIDER=one
-ONE_BASE_URL=https://lboneapi.longbridge-inc.com/v1
-ONE_API_KEY=your-api-key
-ONE_MODEL=gpt-5.1
-```
-
-### 2. 火山方舟 (ARK)
-
-```bash
-LLM_PROVIDER=ark
-ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/v3
-ARK_API_KEY=your-api-key
-ARK_MODEL=deepseek-v3-2-251201
-```
-
-### 3. Ollama (本地)
-
-```bash
-LLM_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=deepseek-r1:8b
-```
-
-## 实现原理
-
-agent.py 中的 `_get_llm_config()` 函数会根据 `LLM_PROVIDER` 环境变量自动选择对应的配置：
-
-```python
-def _get_llm_config():
-    provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower()
-
-    if provider == "ark":
-        return {...}  # 火山方舟配置
-    elif provider == "one":
-        return {...}  # LB One API 配置
-    else:
-        return {...}  # Ollama 配置
-```
-
-所有 provider 都通过 `ChatOpenAI` 统一调用（兼容 OpenAI API 的服务）。
-
-## 测试配置
+### 1. 创建环境变量文件
 
 ```bash
 cd packages/agent
-python test_config.py
+cp .env.example .env
 ```
 
-应该看到类似输出：
-
-```
-✓ LLM Provider: one
-  - Model: gpt-5.1
-  - Base URL: https://lboneapi.longbridge-inc.com/v1
-  - API Key: sk-WOc49F7Twttl...
-  - Temperature: 0.7
-
-✓ Agent 配置加载成功
-✓ Agent 创建成功
-```
-
-## 运行服务
+### 2. 编辑 `.env` 文件
 
 ```bash
-# Terminal 1: 启动 Gateway
-cd packages/gateway
-uvicorn src.main:app --reload --port 8000
-
-# Terminal 2: 启动前端
-cd packages/web
-npm run dev
+# LLM API 配置
+OPENAI_API_KEY=your-api-key-here
+OPENAI_BASE_URL=https://api.openai.com/v1
+MODEL_NAME=claude-sonnet-4-5-20250929
 ```
 
-现在你的 Agent 将使用 LB One API 的 gpt-5.1 模型！
+
+**重要**：不要将 API Key 提交到 Git！`.env` 文件已被 `.gitignore` 忽略。
+
+## 配置参数说明
+
+| 参数                | 说明                           | 示例                                         |
+| ------------------- | ------------------------------ | -------------------------------------------- |
+| `OPENAI_API_KEY`    | LLM API 密钥                   | `sk-ant-...` 或 `sk-proj-...`                |
+| `OPENAI_BASE_URL`   | API 端点地址                   | `https://api.anthropic.com/v1`               |
+| `MODEL_NAME`        | 模型名称                       | `claude-sonnet-4-5-20250929`                 |
+
+## 支持的模型
+
+当前配置使用 **Claude Sonnet 4.5**：
+
+- **模型 ID**: `claude-sonnet-4-5-20250929`
+- **特点**:
+  - 强大的推理能力
+  - 支持工具调用（Function Calling）
+  - 流式输出
+  - 上下文长度：200K tokens
+
+## 代码实现
+
+**Agent 配置** (`packages/agent/src/agent.py`):
+
+```python
+import os
+from dotenv import load_dotenv
+from langchain_openai import ChatOpenAI
+
+# 加载环境变量
+load_dotenv()
+
+def create_agent():
+    # 从环境变量读取配置
+    llm = ChatOpenAI(
+        model=os.getenv("MODEL_NAME", "claude-sonnet-4-5-20250929"),
+        base_url=os.getenv("OPENAI_BASE_URL"),
+        api_key=os.getenv("OPENAI_API_KEY"),
+        temperature=0.7,
+        streaming=True
+    )
+
+    # ... 其他代码
+```
+
+## 安全最佳实践
+
+### ✅ 正确做法
+
+1. **使用 .env 文件**：
+   ```bash
+   # packages/agent/.env
+   OPENAI_API_KEY=sk-actual-key-here
+   ```
+
+2. **添加到 .gitignore**：
+   ```bash
+   # .gitignore
+   .env
+   ```
+
+3. **提供示例文件**：
+   ```bash
+   # .env.example
+   OPENAI_API_KEY=your-api-key-here
+   ```
+
+### ❌ 错误做法
+
+1. **硬编码 API Key**：
+   ```python
+   # ❌ 不要这样做
+   api_key = "sk-WOc49F7..."
+   ```
+
+2. **提交 .env 到 Git**：
+   ```bash
+   # ❌ 不要提交
+   git add .env
+   ```
+
+3. **在代码中暴露**：
+   ```python
+   # ❌ 不要在注释中写 key
+   # My API key: sk-xxx...
+   ```
+
+## 切换模型
+
+### 使用其他 Claude 模型
+
+编辑 `.env` 文件：
+
+```bash
+# Claude Opus 4.5 (更强大)
+MODEL_NAME=claude-opus-4-5-20251101
+
+# Claude Haiku 4.0 (更快速)
+MODEL_NAME=claude-haiku-4-0-20250514
+```
+
+### 使用其他 API 提供商
+
+如果你使用其他兼容 OpenAI API 的服务：
+
+```bash
+# OpenAI 官方
+OPENAI_BASE_URL=https://api.openai.com/v1
+OPENAI_API_KEY=sk-proj-...
+MODEL_NAME=gpt-4o
+
+# Azure OpenAI
+OPENAI_BASE_URL=https://your-resource.openai.azure.com
+OPENAI_API_KEY=your-azure-key
+MODEL_NAME=gpt-4
+```
+
+## 环境变量加载
+
+项目使用 `python-dotenv` 自动加载环境变量：
+
+```python
+from dotenv import load_dotenv
+import os
+
+# 加载 .env 文件
+load_dotenv()
+
+# 读取变量
+api_key = os.getenv("OPENAI_API_KEY")
+```
+
+**加载顺序**：
+1. `.env` 文件中的变量
+2. 系统环境变量（如果未在 .env 中定义）
+3. 代码中的默认值
+
+## 验证配置
+
+启动服务后，检查日志确认配置正确：
+
+```bash
+cd packages/gateway
+uv run uvicorn main:app --reload
+```
+
+你应该看到 Agent 成功创建，没有报错。
+
+## 故障排查
+
+### 问题：API Key 无效
+
+```
+Error: Invalid API key
+```
+
+**解决**：
+1. 检查 `.env` 文件中的 `OPENAI_API_KEY` 是否正确
+2. 确认 API Key 没有过期
+3. 验证 `OPENAI_BASE_URL` 与 API Key 匹配
+
+### 问题：找不到 .env 文件
+
+```
+Error: No such file or directory: '.env'
+```
+
+**解决**：
+```bash
+cd packages/agent
+cp .env.example .env
+# 编辑 .env 填入你的配置
+```
+
+### 问题：模型不存在
+
+```
+Error: Model 'xxx' not found
+```
+
+**解决**：
+1. 检查 `MODEL_NAME` 拼写是否正确
+2. 确认你的 API 提供商支持该模型
+3. 查看 API 文档确认可用模型列表
+
+## 多环境配置
+
+### 开发环境
+
+```bash
+# packages/agent/.env.development
+OPENAI_API_KEY=sk-dev-key
+MODEL_NAME=claude-haiku-4-0-20250514  # 使用更便宜的模型
+```
+
+### 生产环境
+
+```bash
+# packages/agent/.env.production
+OPENAI_API_KEY=sk-prod-key
+MODEL_NAME=claude-sonnet-4-5-20250929  # 使用更强大的模型
+```
+
+### 加载指定环境
+
+```python
+from dotenv import load_dotenv
+import os
+
+env = os.getenv("ENV", "development")
+load_dotenv(f".env.{env}")
+```
+
+## 相关文件
+
+- `packages/agent/.env`: 环境变量（已忽略）
+- `packages/agent/.env.example`: 配置模板
+- `packages/agent/.gitignore`: 忽略规则
+- `packages/agent/src/agent.py`: Agent 实现
+- `docs/ARCHITECTURE.md`: 架构文档
+
+## 参考资源
+
+- [Claude API 文档](https://docs.anthropic.com/)
+- [OpenAI API 文档](https://platform.openai.com/docs)
+- [python-dotenv 文档](https://github.com/theskumar/python-dotenv)
+- [环境变量最佳实践](https://12factor.net/config)
