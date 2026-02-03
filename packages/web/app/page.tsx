@@ -1,14 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useSSE } from "@/hooks/useSSE";
+import { A2UIRenderer, componentRegistry } from '@a2ui-web/a2ui-react-renderer';
+import * as v0_8 from '@a2ui-web/lit-core';
+import {
+  A2UIWeather,
+  A2UIShadcnButton,
+  A2UIInput,
+  A2UICard,
+  A2UICheckbox,
+  A2UISelect,
+  A2UIDialog,
+  A2UITabs,
+  A2UIText,
+  A2UIDivider,
+} from '../a2ui-components';
+
+// 注册自定义组件
+const CHAT_NAMESPACE = 'chat-app';
+componentRegistry.register('Weather', A2UIWeather, CHAT_NAMESPACE);
+componentRegistry.register('Button', A2UIShadcnButton, CHAT_NAMESPACE);
+componentRegistry.register('Input', A2UIInput, CHAT_NAMESPACE);
+componentRegistry.register('Card', A2UICard, CHAT_NAMESPACE);
+componentRegistry.register('Checkbox', A2UICheckbox, CHAT_NAMESPACE);
+componentRegistry.register('Select', A2UISelect, CHAT_NAMESPACE);
+componentRegistry.register('Dialog', A2UIDialog, CHAT_NAMESPACE);
+componentRegistry.register('Tabs', A2UITabs, CHAT_NAMESPACE);
+componentRegistry.register('Text', A2UIText, CHAT_NAMESPACE);
+componentRegistry.register('Divider', A2UIDivider, CHAT_NAMESPACE);
 
 export default function Home() {
   const [input, setInput] = useState("");
+  const [currentSurfaceId, setCurrentSurfaceId] = useState<string | null>(null);
+
+  // A2UI Processor
+  const processorRef = useRef(new v0_8.Data.A2uiMessageProcessor());
+
+  // 消息列表容器引用
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 处理 A2UI 消息
+  const handleA2UIMessage = (message: any) => {
+    console.log('📦 Received A2UI message:', message);
+
+    // 处理 A2UI 消息
+    processorRef.current.processMessages([message]);
+
+    // 如果是 beginRendering，设置 surfaceId
+    if (message.beginRendering) {
+      setCurrentSurfaceId(message.beginRendering.surfaceId);
+    }
+  };
+
   const { messages, isLoading, currentThinking, sendMessage, stop } = useSSE(
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    handleA2UIMessage,
   );
+
+  // 自动滚动到底部
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, currentSurfaceId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -122,6 +176,24 @@ export default function Home() {
             </div>
           </div>
         ))}
+
+        {/* A2UI 渲染区域 */}
+        {currentSurfaceId && (
+          <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700">
+            <A2UIRenderer
+              processor={processorRef.current}
+              surfaceId={currentSurfaceId}
+              namespace={CHAT_NAMESPACE}
+              onUserAction={(action) => {
+                console.log('User action:', action);
+                // 可以将用户操作发送回 Agent
+              }}
+            />
+          </div>
+        )}
+
+        {/* 滚动锚点 */}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* 输入框 */}

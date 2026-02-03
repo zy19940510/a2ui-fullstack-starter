@@ -75,29 +75,18 @@ Customize appearance in `beginRendering`:
 
 ## Standard Catalog Components
 
-### Layout Components
-- `Row` - Horizontal container with `distribution` and `alignment`
-- `Column` - Vertical container with `distribution` and `alignment`
-- `List` - Scrollable list with `direction` (vertical/horizontal)
-- `Card` - Material card wrapper with single `child`
-- `Tabs` - Tab navigation with `tabItems` array
-- `Modal` - Dialog with `entryPointChild` and `contentChild`
-- `Divider` - Separator with `axis` (horizontal/vertical)
+The A2UI 0.8 Standard Catalog includes 16 components across three categories:
 
-### Display Components
-- `Text` - Text display with `usageHint` (h1-h5, caption, body). Supports simple Markdown.
-- `Image` - Image with `url`, `fit`, `usageHint`
-- `Icon` - Icon from standard set (see [components reference](reference/components.md))
-- `Video` - Video player with `url`
-- `AudioPlayer` - Audio with `url` and `description`
+**Layout Components:** Row, Column, List, Card, Tabs, Modal, Divider
+**Display Components:** Text, Image, Icon, Video, AudioPlayer
+**Input Components:** Button, TextField, CheckBox, DateTimeInput, MultipleChoice, Slider
 
-### Input Components
-- `Button` - Clickable with `child` and `action`
-- `TextField` - Text input with `label`, `textFieldType`
-- `CheckBox` - Toggle with `label` and `value`
-- `DateTimeInput` - Date/time picker with `enableDate`/`enableTime`
-- `MultipleChoice` - Selection with `options` and `maxAllowedSelections`
-- `Slider` - Range input with `minValue`/`maxValue`
+**IMPORTANT:** For detailed component documentation (properties, types, examples), use the MCP tools:
+- **list_components()** - List all available components
+- **get_component(name)** - Get detailed documentation for a specific component (e.g., `get_component("Button")`)
+- **search_components(keyword)** - Search for components by keyword
+
+The component reference file at `reference/components.md` now redirects to MCP.
 
 ### Component Weight
 

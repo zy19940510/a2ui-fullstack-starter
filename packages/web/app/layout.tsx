@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 // 导入 A2UI 样式
 import "@a2ui-web/a2ui-react-renderer/styles.css";
 import "@a2ui-web/animations/styles.css";
+import "@a2ui-web/shadcn-ui/styles/globals";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" className="dark" style={{ colorScheme: 'dark' }}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

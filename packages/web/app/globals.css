@@ -1,10 +1,6 @@
 @import "tailwindcss";
 @import "@a2ui-web/config-tailwind";
 
-/* Tailwind v4 source paths */
-@source "../a2ui-components/**/*.{js,ts,jsx,tsx}";
-@source "../../node_modules/@a2ui-web/shadcn-ui/src/**/*.{js,ts,jsx,tsx}";
-
 /* A2UI Component CSS Variables */
 @layer theme {
   :root {
@@ -15,8 +11,8 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -26,10 +22,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 亮色主题（可选） */
+@media (prefers-color-scheme: light) {
+  :root.light {
+    --background: #ffffff;
+    --foreground: #171717;
   }
 }
 
@@ -37,4 +34,47 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* 暗色模式下的滚动条 */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.5);
+  }
+}
+
+/* Firefox 滚动条样式 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  * {
+    scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+  }
 }

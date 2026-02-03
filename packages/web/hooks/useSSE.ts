@@ -6,6 +6,7 @@ export interface SSEEvent {
     | "tool_call"
     | "tool_result"
     | "message"
+    | "a2ui"
     | "error"
     | "done";
   data: {
@@ -19,6 +20,7 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   toolCalls?: Array<{
+    id: string; // 工具调用的唯一 ID
     name: string;
     args: any;
     result?: string;
@@ -28,7 +30,10 @@ export interface Message {
   isProcessing?: boolean; // 是否在处理中（显示光标）
 }
 
-export function useSSE(apiUrl: string) {
+export function useSSE(
+  apiUrl: string,
+  onA2UIMessage?: (message: any) => void,
+) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentThinking, setCurrentThinking] = useState<string | null>(null);
@@ -134,6 +139,7 @@ export function useSSE(apiUrl: string) {
                     toolCalls: [
                       ...(m.toolCalls || []),
                       {
+                        id: event.data.id, // 保存工具调用的唯一 ID
                         name: event.data.content.name,
                         args: event.data.content.args,
                         isRunning: true, // 标记为运行中
@@ -146,17 +152,21 @@ export function useSSE(apiUrl: string) {
             );
             break;
           case "tool_result":
-            // 更新最后一个工具调用的结果
+            // 根据 ID 精确匹配并更新对应的工具调用结果
             setMessages((prev) =>
               prev.map((m) => {
                 if (m.id === assistantId && m.toolCalls?.length) {
-                  const toolCalls = [...m.toolCalls];
-                  const lastTool = toolCalls[toolCalls.length - 1];
-                  toolCalls[toolCalls.length - 1] = {
-                    ...lastTool,
-                    result: event.data.content.result,
-                    isRunning: false, // 标记为已完成
-                  };
+                  const toolCalls = m.toolCalls.map((tool) => {
+                    // 找到匹配 ID 的工具调用
+                    if (tool.id === event.data.id) {
+                      return {
+                        ...tool,
+                        result: event.data.content.result,
+                        isRunning: false, // 标记为已完成
+                      };
+                    }
+                    return tool;
+                  });
                   return { ...m, toolCalls };
                 }
                 return m;
@@ -181,10 +191,16 @@ export function useSSE(apiUrl: string) {
           case "done":
             setIsLoading(false);
             break;
+          case "a2ui":
+            // A2UI 消息回调
+            if (onA2UIMessage) {
+              onA2UIMessage(event.data);
+            }
+            break;
         }
       }
     },
-    [apiUrl],
+    [apiUrl, onA2UIMessage],
   );
 
   const stop = useCallback(() => {
