@@ -34,6 +34,9 @@ componentRegistry.register('Divider', A2UIDivider, CHAT_NAMESPACE);
 export default function Home() {
   const [input, setInput] = useState("");
   const [currentSurfaceId, setCurrentSurfaceId] = useState<string | null>(null);
+  // 记录每条 assistant 消息对应的 surfaceId，这样 A2UI 卡片会出现在对应消息位置，
+  // 不会一直固定在列表底部。
+  const [surfaceIdByMessageId, setSurfaceIdByMessageId] = useState<Record<string, string>>({});
 
   // A2UI Processor
   const processorRef = useRef(new v0_8.Data.A2uiMessageProcessor());
@@ -52,12 +55,32 @@ export default function Home() {
     if (message.beginRendering) {
       setCurrentSurfaceId(message.beginRendering.surfaceId);
     }
+
+    // 如果能拿到这条 a2ui 事件所属的 assistant 消息，则为该轮创建独立 surface 映射
+    const ownerAssistantId = message.__assistantMessageId as string | null | undefined;
+    if (ownerAssistantId && message.beginRendering?.surfaceId) {
+      setSurfaceIdByMessageId((prev) => ({
+        ...prev,
+        [ownerAssistantId]: message.beginRendering.surfaceId,
+      }));
+    }
   };
 
   const { messages, isLoading, currentThinking, sendMessage, stop } = useSSE(
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
     handleA2UIMessage,
   );
+
+  // 兼容兜底：如果 SSE 没透传 __assistantMessageId，也至少能保持旧行为（绑定到最后一条 assistant）。
+  useEffect(() => {
+    if (!currentSurfaceId) return;
+    const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant");
+    if (!lastAssistant) return;
+    setSurfaceIdByMessageId((prev) => {
+      if (prev[lastAssistant.id] === currentSurfaceId) return prev;
+      return { ...prev, [lastAssistant.id]: currentSurfaceId };
+    });
+  }, [messages, currentSurfaceId]);
 
   // 自动滚动到底部
   useEffect(() => {
@@ -174,23 +197,23 @@ export default function Home() {
                 </span>
               )}
             </div>
+
+            {/* A2UI 渲染区域：放到对应的 assistant 消息卡片内部 */}
+            {msg.role === "assistant" && surfaceIdByMessageId[msg.id] && (
+              <div className="mt-3 p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700">
+                <A2UIRenderer
+                  processor={processorRef.current}
+                  surfaceId={surfaceIdByMessageId[msg.id]}
+                  namespace={CHAT_NAMESPACE}
+                  onUserAction={(action) => {
+                    console.log('User action:', action);
+                    // 可以将用户操作发送回 Agent
+                  }}
+                />
+              </div>
+            )}
           </div>
         ))}
-
-        {/* A2UI 渲染区域 */}
-        {currentSurfaceId && (
-          <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-700">
-            <A2UIRenderer
-              processor={processorRef.current}
-              surfaceId={currentSurfaceId}
-              namespace={CHAT_NAMESPACE}
-              onUserAction={(action) => {
-                console.log('User action:', action);
-                // 可以将用户操作发送回 Agent
-              }}
-            />
-          </div>
-        )}
 
         {/* 滚动锚点 */}
         <div ref={messagesEndRef} />

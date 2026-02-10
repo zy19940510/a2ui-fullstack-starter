@@ -9,13 +9,22 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@a2ui-web/a2ui-react-renderer": "^0.8.5",
+    "framer-motion": "^11.18.2",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "@a2ui-web/a2ui-react-renderer": "workspace:*",
+    "@a2ui-web/config-tailwind": "workspace:*",
+    "@a2ui-web/config-postcss": "workspace:*",
+    "@a2ui-web/config-typescript": "workspace:*",
+    "@a2ui-web/lit-core": "workspace:*",
+    "@a2ui-web/animations": "workspace:*",
+    "@a2ui-web/assets": "workspace:*",
+    "@a2ui-web/shadcn-ui": "workspace:*",
+    "@a2ui-web/utils": "workspace:*"
   },
   "devDependencies": {
-    "@a2ui-web/config-tailwind": "^0.8.0",
+    
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

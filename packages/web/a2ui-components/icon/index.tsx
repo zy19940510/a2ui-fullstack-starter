@@ -18,8 +18,8 @@
  */
 
 import * as LucideIcons from '@a2ui-web/animations/icons'
-import type { A2UIComponentProps } from '../../types'
-import { useA2UIValue } from '../../hooks/useA2UIValue'
+import type { A2UIComponentProps } from '@a2ui-web/a2ui-react-renderer'
+import { useA2UIValue } from '@a2ui-web/a2ui-react-renderer'
 
 // 图标映射表 - 包含所有常用图标
 const iconMap: Record<string, React.ComponentType<any>> = {

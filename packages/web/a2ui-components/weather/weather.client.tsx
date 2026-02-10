@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { emitUserAction as emitAction } from '@a2ui-web/a2ui-react-renderer/utils/userAction'
-import { motion } from '@a2ui-web/animations/motion'
+import { motion } from 'framer-motion'
 import type { A2UIComponentProps } from '@a2ui-web/a2ui-react-renderer'
 import type { WeatherData, WeatherTranslations, WeatherAction } from './weather-types'
 import { weatherIcons, defaultTranslations, getWeatherFromCode } from './weather-data'

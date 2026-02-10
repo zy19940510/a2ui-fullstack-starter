@@ -61,7 +61,9 @@ export function A2UIText(props: A2UIComponentProps) {
 
   // 获取配置
   const config = usageHintConfig[usageHint] || usageHintConfig.body
-  const Tag = config.tag as keyof JSX.IntrinsicElements
+  // 在某些 TS 配置下（尤其是 react 新 JSX runtime），全局 JSX namespace 可能不可用。
+  // 用 React.ElementType 避免依赖全局 JSX 类型。
+  const Tag = config.tag as React.ElementType
 
   // 样式对象（仅用于 weight 属性）
   const styles: React.CSSProperties = {}

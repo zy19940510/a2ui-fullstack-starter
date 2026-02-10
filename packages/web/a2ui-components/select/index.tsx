@@ -143,11 +143,11 @@ export function A2UISelect(props: A2UIComponentProps) {
           {label}
         </Label>
       )}
-      <Select value={value} onValueChange={handleValueChange} disabled={disabled}>
-        <SelectTrigger id={component.id} className="w-full">
+      <Select value={value} onValueChange={handleValueChange}>
+        <SelectTrigger id={component.id} className="w-full" disabled={disabled}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent {...({ position: 'popper' } as any)}>
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}

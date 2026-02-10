@@ -38,6 +38,8 @@ export function useSSE(
   const [isLoading, setIsLoading] = useState(false);
   const [currentThinking, setCurrentThinking] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  // 每次 sendMessage 代表一轮对话，用于将 a2ui 事件绑定到正确的 assistant 消息。
+  const activeAssistantIdRef = useRef<string | null>(null);
 
   const sendMessage = useCallback(
     async (message: string) => {
@@ -52,6 +54,7 @@ export function useSSE(
 
       // 创建助手消息占位
       const assistantId = `assistant-${Date.now()}`;
+      activeAssistantIdRef.current = assistantId;
       const assistantMessage: Message = {
         id: assistantId,
         role: "assistant",
@@ -115,6 +118,11 @@ export function useSSE(
             m.id === assistantId ? { ...m, isStreaming: false } : m,
           ),
         );
+
+        // 清理 active assistant id，避免下一轮误绑定
+        if (activeAssistantIdRef.current === assistantId) {
+          activeAssistantIdRef.current = null;
+        }
       }
 
       function handleSSEEvent(event: SSEEvent) {
@@ -194,7 +202,11 @@ export function useSSE(
           case "a2ui":
             // A2UI 消息回调
             if (onA2UIMessage) {
-              onA2UIMessage(event.data);
+              onA2UIMessage({
+                ...event.data,
+                // 透传给 UI 层：这条 a2ui 事件属于哪条 assistant 消息
+                __assistantMessageId: activeAssistantIdRef.current,
+              });
             }
             break;
         }

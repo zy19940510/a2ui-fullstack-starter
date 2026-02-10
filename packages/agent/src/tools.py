@@ -1,10 +1,72 @@
 from langchain_core.tools import tool
 import httpx
-from ddgs import DDGS
+# ddgs 是可选依赖：本项目某些环境下只需要 MCP 相关工具，不一定安装了 ddgs
+try:
+    from ddgs import DDGS  # type: ignore
+except Exception:  # pragma: no cover
+    DDGS = None  # type: ignore
 import json
+from typing import Any, Dict
 
 # MCP ComponentDoc Server URL
 MCP_SERVER_URL = "http://127.0.0.1:9527/mcp"
+
+
+def _call_mcp_tool(name: str, arguments: Dict[str, Any] | None = None, timeout: float = 10.0) -> Dict[str, Any]:
+    """通过 fastmcp 官方 Client 调用 MCP tool。
+
+    直接用裸 HTTPX 模拟 JSON-RPC 很容易因为 fastmcp>=2 的 HTTP transport
+    协议/参数校验发生漂移而报错（406/400/-32602）。
+    这里使用 fastmcp.client.Client 由官方实现负责握手、会话和 SSE 解析。
+    """
+
+    # fastmcp 依赖可能只在 packages/agent 的 uv venv 里。
+    # gateway 运行时会把 agent 源码直接塞进 sys.path，导致这里 import fastmcp 失败。
+    # 这里做一次“从 agent venv 注入 site-packages”的兜底，让工具在 gateway 环境也能用。
+    try:
+        from fastmcp.client import Client  # type: ignore
+    except Exception:
+        import sys
+        from pathlib import Path
+
+        agent_root = Path(__file__).resolve().parents[1]  # packages/agent
+        # 仅支持 mac/linux 的常见 venv 布局：.venv/lib/pythonX.Y/site-packages
+        candidates = list((agent_root / ".venv" / "lib").glob("python*/site-packages"))
+        if candidates:
+            sp = str(candidates[0])
+            # 必须追加到 sys.path 尾部，避免覆盖 gateway/anaconda 环境里的 attrs 等依赖。
+            if sp not in sys.path:
+                sys.path.append(sp)
+
+        try:
+            from fastmcp.client import Client  # type: ignore
+        except Exception as e:  # pragma: no cover
+            raise RuntimeError(
+                "缺少 fastmcp 依赖，无法调用 MCP。请先在 packages/agent 下运行 uv sync 安装依赖。"
+            ) from e
+
+    import asyncio
+
+    async def _run() -> Dict[str, Any]:
+        async with Client(MCP_SERVER_URL, timeout=timeout) as client:
+            result = await client.call_tool(name, arguments or {})
+            # fastmcp 的返回对象包含 structured_content/data 等更易用字段。
+            # 优先使用这些，避免再去 parse content[0].text。
+            if hasattr(result, "structured_content") and result.structured_content is not None:
+                return result.structured_content  # type: ignore[return-value]
+            if hasattr(result, "data") and result.data is not None:
+                return result.data  # type: ignore[return-value]
+
+            # 兜底：结果通常是 pydantic 模型，统一转成 dict
+            if hasattr(result, "model_dump"):
+                return result.model_dump()  # pydantic v2
+            if hasattr(result, "dict"):
+                return result.dict()  # pydantic v1
+            if isinstance(result, dict):
+                return result
+            return {"result": result}
+
+    return asyncio.run(_run())
 
 @tool
 def list_available_components() -> str:
@@ -14,33 +76,23 @@ def list_available_components() -> str:
         JSON 格式的组件列表，包含所有已注册的组件
     """
     try:
-        response = httpx.post(
-            MCP_SERVER_URL,
-            json={
-                "jsonrpc": "2.0",
-                "method": "tools/call",
-                "params": {
-                    "name": "list_components",
-                    "arguments": {}
-                },
-                "id": 1
-            },
-            timeout=5.0
-        )
-        response.raise_for_status()
-        result = response.json()
+        mcp_result = _call_mcp_tool("list_components", {})
+        # fastmcp client.call_tool 的返回一般是 {"content": [...]} 或 {"result": ...}
+        components: list[str] = []
 
-        if "result" in result and "content" in result["result"]:
-            components_data = json.loads(result["result"]["content"][0]["text"])
-            components = components_data.get("components", [])
+        # 情况 1：直接返回 dict，包含 components
+        if "components" in mcp_result and isinstance(mcp_result.get("components"), list):
+            components = mcp_result["components"]
 
-            # 返回格式化的组件列表
-            return json.dumps({
-                "components": components,
-                "total_count": len(components)
-            }, ensure_ascii=False, indent=2)
+        # 情况 2：返回 content[0].text 是 JSON 字符串
+        elif "content" in mcp_result and mcp_result["content"]:
+            try:
+                components_data = json.loads(mcp_result["content"][0].get("text", "{}"))
+                components = components_data.get("components", [])
+            except Exception:
+                components = []
 
-        return json.dumps({"components": [], "total_count": 0}, ensure_ascii=False)
+        return json.dumps({"components": components, "total_count": len(components)}, ensure_ascii=False, indent=2)
     except Exception as e:
         return f"获取组件列表失败: {str(e)}"
 
@@ -55,31 +107,24 @@ def get_component(name: str) -> str:
         组件的完整文档，包括 props、数据结构、使用示例等
     """
     try:
-        response = httpx.post(
-            MCP_SERVER_URL,
-            json={
-                "jsonrpc": "2.0",
-                "method": "tools/call",
-                "params": {
-                    "name": "get_component",
-                    "arguments": {"name": name}
-                },
-                "id": 1
-            },
-            timeout=5.0
-        )
-        response.raise_for_status()
-        result = response.json()
+        mcp_result = _call_mcp_tool("get_component", {"name": name})
 
-        if "result" in result and "content" in result["result"]:
-            component_data = json.loads(result["result"]["content"][0]["text"])
-            content = component_data.get("content")
+        # 优先：直接返回 {name, content, error}
+        if isinstance(mcp_result, dict):
+            if mcp_result.get("content"):
+                return mcp_result["content"]
+            if mcp_result.get("error"):
+                return f"错误: {mcp_result.get('error')}"
 
-            if content:
-                return content
-
-            error = component_data.get("error", "组件未找到")
-            return f"错误: {error}"
+        # 兜底：如果仍然是 content[0].text 形式
+        if "content" in mcp_result and mcp_result["content"]:
+            try:
+                payload = json.loads(mcp_result["content"][0].get("text", "{}"))
+                if payload.get("content"):
+                    return payload["content"]
+                return f"错误: {payload.get('error', '组件未找到')}"
+            except Exception:
+                pass
 
         return f"获取组件 '{name}' 文档失败"
     except Exception as e:
@@ -97,33 +142,23 @@ def search_components(keyword: str, top_k: int = 5) -> str:
         匹配的组件列表
     """
     try:
-        response = httpx.post(
-            MCP_SERVER_URL,
-            json={
-                "jsonrpc": "2.0",
-                "method": "tools/call",
-                "params": {
-                    "name": "search_components",
-                    "arguments": {"keyword": keyword, "top_k": top_k}
-                },
-                "id": 1
-            },
-            timeout=5.0
-        )
-        response.raise_for_status()
-        result = response.json()
+        mcp_result = _call_mcp_tool("search_components", {"keyword": keyword, "top_k": top_k})
 
-        if "result" in result and "content" in result["result"]:
-            search_data = json.loads(result["result"]["content"][0]["text"])
-            results = search_data.get("results", [])
+        results = []
+        if "results" in mcp_result and isinstance(mcp_result.get("results"), list):
+            results = mcp_result["results"]
+        elif "content" in mcp_result and mcp_result["content"]:
+            try:
+                payload = json.loads(mcp_result["content"][0].get("text", "{}"))
+                results = payload.get("results", [])
+            except Exception:
+                results = []
 
-            if results:
-                names = [r["name"] for r in results]
-                return f"找到 {len(names)} 个组件: {', '.join(names)}"
+        if results:
+            names = [r.get("name") for r in results if isinstance(r, dict) and r.get("name")]
+            return f"找到 {len(names)} 个组件: {', '.join(names)}"
 
-            return f"未找到包含 '{keyword}' 的组件"
-
-        return "搜索失败"
+        return f"未找到包含 '{keyword}' 的组件"
     except Exception as e:
         return f"搜索组件失败: {str(e)}"
 

@@ -11,9 +11,9 @@
  * 使用 Tailwind CSS 类名 + auicom 前缀实现样式隔离
  */
 
-import type { A2UIComponentProps } from '../../types'
-import { useA2UIValue } from '../../hooks/useA2UIValue'
-import { ComponentRenderer } from '../../components/ComponentRenderer'
+import type { A2UIComponentProps } from '@a2ui-web/a2ui-react-renderer'
+import { useA2UIValue } from '@a2ui-web/a2ui-react-renderer'
+import { ComponentRenderer } from '@a2ui-web/a2ui-react-renderer/components/ComponentRenderer'
 import type { CSSProperties } from 'react'
 
 /**

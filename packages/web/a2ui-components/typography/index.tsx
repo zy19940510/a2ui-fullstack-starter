@@ -92,7 +92,8 @@ export function A2UITypography(props: A2UIComponentProps) {
     surfaceId
   )
 
-  const as = useA2UIValue<keyof JSX.IntrinsicElements>(
+  // 避免依赖全局 JSX namespace（部分 TS 配置下不可用）
+  const as = useA2UIValue<React.ElementType>(
     componentProps.as,
     'p',
     processor,
