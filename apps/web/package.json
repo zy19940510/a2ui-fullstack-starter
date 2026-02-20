@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "bun run build:deps",
     "dev": "next dev",
+    "prebuild": "bun run build:deps",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:deps": "bun run --cwd ../.. build:a2ui-web"
   },
   "dependencies": {
     "framer-motion": "^11.18.2",

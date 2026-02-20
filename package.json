@@ -1,6 +1,9 @@
 {
   "name": "a2ui-test",
   "private": true,
+  "scripts": {
+    "build:a2ui-web": "bun run --filter @a2ui-web/lit-core build && bun run --filter @a2ui-web/animations build && bun run --filter @a2ui-web/utils build && bun run --filter @a2ui-web/a2ui-react-renderer build"
+  },
   "workspaces": [
     "apps/*",
     "packages/*",
