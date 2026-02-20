@@ -67,8 +67,9 @@
 │   │   ├── lit-core/
 │   │   ├── shadcn-ui/
 │   │   └── utils/
-│   ├── docs/
 │   └── mcp/
+│       └── ComponentDoc/
+│           └── docs/
 ```
 
 ---

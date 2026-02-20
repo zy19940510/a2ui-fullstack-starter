@@ -1,167 +1,122 @@
-# A2UI Test - AI Agent Chat Application
+# A2UI Test Monorepo
 
 English | [简体中文](./README.md)
 
-A complete AI Agent chat application with streaming output, tool calling, and custom UI components, built with LangGraph, FastAPI, and Next.js.
+A2UI Test is a monorepo full-stack sample including a Web app, Gateway, AI Agent, and a ComponentDoc MCP service used by the agent tooling.
 
-## ✨ Features
+## Current Structure (Latest)
 
-- 🚀 **Streaming Output**: Real-time responses using SSE (Server-Sent Events)
-- 🛠️ **Tool Calling**: Integrated weather query, web search, calculator, and more
-- 🎨 **A2UI Components**: Custom component system based on A2UI 0.8 protocol
-- 🌍 **Real-time Weather**: Integrated with Open-Meteo API, free and no API key required
-- 🌙 **Dark Mode**: Complete theme switching support
-- 🔐 **Secure Configuration**: Environment variable management for sensitive information
-
-## 🏗️ Tech Stack
-
-- **Frontend**: Next.js 15 + React + Tailwind CSS
-- **Gateway**: Python + FastAPI
-- **Agent**: LangGraph + LangChain
-- **LLM**: Claude Sonnet 4.5 (supports Anthropic API / OpenAI-compatible API)
-- **Weather API**: Open-Meteo (free, open-source)
-- **Search API**: DuckDuckGo
-
-## 📁 Project Structure
-
-```
+```text
 a2ui-test/
+├── ARCHITECTURE.md
+├── README.md
+├── README_EN.md
 ├── apps/
-│   ├── ai-agent/       # LangGraph Agent
-│   ├── gateway/        # FastAPI Gateway
-│   └── web/            # Next.js Frontend
+│   ├── web/                    # Next.js 16 + React 19
+│   ├── gateway/                # FastAPI SSE gateway
+│   └── ai-agent/               # LangGraph agent logic and tools
 ├── packages/
-│   ├── a2ui-web/       # a2ui-web component and config packages
-│   ├── docs/           # Component docs
-│   └── mcp/            # MCP services
-└── docs/
-    ├── ARCHITECTURE.md      # Architecture Documentation
-    └── LLM_CONFIGURATION.md # LLM Configuration Guide
+│   ├── a2ui-web/               # UI/config packages migrated from a2ui-component
+│   └── mcp/
+│       └── ComponentDoc/
+│           ├── main.py         # MCP server entry (port 9527)
+│           └── docs/           # Component docs consumed by MCP
+├── package.json                # workspace and root scripts
+└── bun.lock
 ```
 
-## 🚀 Quick Start
+## Tech Stack
 
-### 1. Environment Setup
+- Web: Next.js 16.1.6 + React 19 + Tailwind CSS 4
+- Gateway: FastAPI + SSE
+- Agent: LangGraph + LangChain OpenAI-compatible
+- MCP: FastMCP (ComponentDoc)
+- Workspace: Bun Workspaces + uv
+
+## Prerequisites
+
+- Bun >= 1.3
+- Python >= 3.13
+- uv
+
+## Install Dependencies
 
 ```bash
-# Clone the project
-git clone https://github.com/yourusername/a2ui-test.git
-cd a2ui-test
+# Repo root (Bun workspaces)
+cd /Users/ethan/code/a2ui-test
+bun install
 
-# Install Python dependencies
+# Python apps
 cd apps/ai-agent && uv sync
 cd ../gateway && uv sync
-
-# Install frontend dependencies
-cd ../web
-npm install  # or bun install
+cd ../../packages/mcp/ComponentDoc && uv sync
 ```
 
-### 2. Configure Environment Variables
+## Environment Variables
+
+Agent reads `apps/ai-agent/.env`:
 
 ```bash
-# Copy environment template
+cd /Users/ethan/code/a2ui-test
 cp apps/ai-agent/.env.example apps/ai-agent/.env
-
-# Edit .env file and fill in your API Key
-# Using Anthropic API (recommended):
-# OPENAI_API_KEY=your-anthropic-api-key
-# OPENAI_BASE_URL=https://api.anthropic.com/v1
-# MODEL_NAME=claude-sonnet-4-5-20250929
 ```
 
-See [LLM Configuration Guide](./docs/LLM_CONFIGURATION.md) for detailed configuration instructions.
+Required keys:
 
-### 3. Start Services
+- `OPENAI_API_KEY`
+- `OPENAI_BASE_URL`
+- `MODEL_NAME`
 
-**Terminal 1 - Start Gateway:**
+If your provider uses `ONE_API_KEY / ONE_BASE_URL`, map them to the `OPENAI_*` keys above.
+
+## Start (Development)
+
+Use 3 terminals:
 
 ```bash
-cd apps/gateway
+# Terminal 1: ComponentDoc MCP
+cd /Users/ethan/code/a2ui-test/packages/mcp/ComponentDoc
+uv run python main.py
+
+# Terminal 2: Gateway
+cd /Users/ethan/code/a2ui-test/apps/gateway
 uv run uvicorn main:app --reload --port 8000
+
+# Terminal 3: Web
+cd /Users/ethan/code/a2ui-test/apps/web
+bun run dev
 ```
 
-**Terminal 2 - Start Frontend:**
+Notes:
+
+- `apps/web` has `predev/prebuild` hooks to build `packages/a2ui-web` dependencies automatically.
+- Gateway imports `apps/ai-agent/src` directly by path, so no standalone agent HTTP service is required.
+
+## Common Commands
 
 ```bash
-cd apps/web
-npm run dev
+# Build a2ui-web package dependencies
+cd /Users/ethan/code/a2ui-test
+bun run build:a2ui-web
+
+# Web checks
+cd /Users/ethan/code/a2ui-test/apps/web
+bun run lint
+bun run build
 ```
 
-### 4. Access Application
+## Endpoints
 
-- Chat Page: http://localhost:3000
-- Weather Component Demo: http://localhost:3000/weather
-- API Health Check: http://localhost:8000/api/health
-- API Documentation: http://localhost:8000/docs
+- Web: <http://localhost:3000>
+- Weather Demo: <http://localhost:3000/weather>
+- Gateway Health: <http://localhost:8000/api/health>
+- Gateway Docs: <http://localhost:8000/docs>
+- MCP Endpoint: <http://127.0.0.1:9527/mcp>
 
-## 💡 Usage Examples
+## Related Docs
 
-### Test SSE Streaming Chat
-
-Test the API using curl:
-
-```bash
-curl -X POST http://localhost:8000/api/chat/stream \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What is the weather in Beijing?"}' \
-  --no-buffer
-```
-
-### Tool Calling Examples
-
-The Agent supports the following tools:
-
-1. **Weather Query**: "What's the weather in Beijing?"
-2. **Web Search**: "Search for latest AI news"
-3. **Calculator**: "Calculate 123 * 456"
-
-## 📚 Documentation
-
-- [Architecture Documentation](./docs/ARCHITECTURE.md) - Detailed system architecture
-- [LLM Configuration](./docs/LLM_CONFIGURATION.md) - LLM configuration guide
-
-## 🔒 Security Notes
-
-- ✅ All sensitive information is stored in `.env` files
-- ✅ `.env` is ignored by `.gitignore`
-- ✅ `.env.example` provided as configuration template
-- ⚠️ Never commit API Keys to Git
-
-## 🛠️ Development Guide
-
-### Adding New Tools
-
-Add new tools in `apps/ai-agent/src/tools.py`:
-
-```python
-from langchain_core.tools import tool
-
-@tool
-def my_tool(param: str) -> str:
-    """Tool description"""
-    # Implementation logic
-    return result
-```
-
-### Adding A2UI Components
-
-1. Create component in `apps/web/a2ui-components/`
-2. Register component in `apps/web/lib/customCatalog.ts`
-3. Return A2UI 0.8 protocol-compliant messages from Agent
-
-## 🤝 Contributing
-
-Issues and Pull Requests are welcome!
-
-## 📄 License
-
-MIT License
-
-## 🙏 Acknowledgments
-
-- [LangGraph](https://langchain-ai.github.io/langgraph/)
-- [FastAPI](https://fastapi.tiangolo.com/)
-- [Next.js](https://nextjs.org/)
-- [A2UI](https://github.com/anthropics/anthropic-sdk-typescript/tree/main/packages/a2ui-react-renderer)
-- [Open-Meteo](https://open-meteo.com/)
+- Architecture: [ARCHITECTURE.md](./ARCHITECTURE.md)
+- Web: [apps/web/README.md](./apps/web/README.md)
+- Gateway: [apps/gateway/README.md](./apps/gateway/README.md)
+- Agent: [apps/ai-agent/README.md](./apps/ai-agent/README.md)
+- ComponentDoc: [packages/mcp/ComponentDoc/README.md](./packages/mcp/ComponentDoc/README.md)

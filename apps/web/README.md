@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# web
 
-## Getting Started
+`web` 是 Monorepo 中的 Next.js 前端应用，负责展示聊天 UI、工具事件和 A2UI 动态组件。
 
-First, run the development server:
+## 技术栈
+
+- Next.js 16.1.6
+- React 19
+- Tailwind CSS 4
+- A2UI React Renderer（来自 workspace 包）
+
+## 依赖安装
+
+推荐在仓库根目录执行：
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd /Users/ethan/code/a2ui-test
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 启动开发环境
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cd /Users/ethan/code/a2ui-test/apps/web
+bun run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+说明：
 
-## Learn More
+- `dev/build` 前会自动执行 `build:deps`。
+- `build:deps` 会在根目录执行 `bun run build:a2ui-web`，确保 `packages/a2ui-web/*` 产物可用。
 
-To learn more about Next.js, take a look at the following resources:
+## 常用命令
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# 开发
+bun run dev
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 检查
+bun run lint
 
-## Deploy on Vercel
+# 构建
+bun run build
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# 生产启动
+bun run start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 环境变量
+
+可选：
+
+- `NEXT_PUBLIC_API_URL`（默认 `http://localhost:8000`）
+
+## 页面
+
+- `/`：聊天主页面
+- `/weather`：天气组件演示页

@@ -5,7 +5,8 @@ from typing import Dict, List, Optional
 
 from fastmcp import FastMCP
 
-DOCS_DIR = Path(__file__).resolve().parents[2] / "docs"
+# 组件文档与 MCP 服务放在同一目录，避免跨包路径耦合。
+DOCS_DIR = Path(__file__).resolve().parent / "docs"
 
 mcp = FastMCP("A2UI MCP Server")
 
