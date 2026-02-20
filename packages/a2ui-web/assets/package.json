@@ -1,0 +1,29 @@
+{
+  "name": "@a2ui-web/assets",
+  "version": "0.8.0",
+  "description": "Shared static assets (icons, images) for a2ui-web projects",
+  "author": "a2ui-web",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.longbridge-inc.com:2222/long-bridge-frontend/a2ui-component.git",
+    "directory": "assets"
+  },
+  "sideEffects": false,
+  "types": "./index.d.ts",
+  "exports": {
+    "./icons/*": "./icons/*",
+    "./images/*": "./images/*"
+  },
+  "files": [
+    "icons",
+    "images",
+    "index.d.ts",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/"
+  }
+}
+

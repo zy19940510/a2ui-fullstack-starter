@@ -1,0 +1,12 @@
+# 本地开发认证配置示例
+# 将此内容添加到你的 ~/.npmrc 文件中
+
+# 1. 先创建 Personal Access Token:
+#    https://gitlab.longbridge-inc.com/-/user_settings/personal_access_tokens
+#    权限勾选: api, write_repository, read_repository
+
+# 2. 复制下面的配置到 ~/.npmrc，并替换 <YOUR_TOKEN>
+//gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/:_authToken=<YOUR_TOKEN>
+
+# 示例:
+# //gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/:_authToken=glpat-abc123xyz456

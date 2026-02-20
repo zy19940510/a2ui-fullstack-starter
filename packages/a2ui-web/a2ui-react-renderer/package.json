@@ -1,0 +1,141 @@
+{
+  "name": "@a2ui-web/a2ui-react-renderer",
+  "version": "0.8.5",
+  "description": "A2UI 0.8 React 渲染器（事件驱动，无轮询）",
+  "author": "a2ui-web",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./A2UIRenderer": {
+      "types": "./dist/A2UIRenderer.d.ts",
+      "import": "./dist/A2UIRenderer.js"
+    },
+    "./hooks/useA2UIValue": {
+      "types": "./dist/hooks/useA2UIValue.d.ts",
+      "import": "./dist/hooks/useA2UIValue.js"
+    },
+    "./context/A2UIProvider": {
+      "types": "./dist/context/A2UIProvider.d.ts",
+      "import": "./dist/context/A2UIProvider.js"
+    },
+    "./context/CatalogContext": {
+      "types": "./dist/context/CatalogContext.d.ts",
+      "import": "./dist/context/CatalogContext.js"
+    },
+    "./components/ComponentRenderer": {
+      "types": "./dist/components/ComponentRenderer.d.ts",
+      "import": "./dist/components/ComponentRenderer.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    },
+    "./utils/valueMap": {
+      "types": "./dist/utils/valueMap.d.ts",
+      "import": "./dist/utils/valueMap.js"
+    },
+    "./utils/userAction": {
+      "types": "./dist/utils/userAction.d.ts",
+      "import": "./dist/utils/userAction.js"
+    },
+    "./utils/resolveValue": {
+      "types": "./dist/utils/resolveValue.d.ts",
+      "import": "./dist/utils/resolveValue.js"
+    },
+    "./catalog/ComponentCatalog": {
+      "types": "./dist/catalog/ComponentCatalog.d.ts",
+      "import": "./dist/catalog/ComponentCatalog.js"
+    },
+    "./catalog/plugins": {
+      "types": "./dist/catalog/plugins.d.ts",
+      "import": "./dist/catalog/plugins.js"
+    },
+    "./a2ui-components/navbar": {
+      "types": "./dist/a2ui-components/navbar/index.d.ts",
+      "import": "./dist/a2ui-components/navbar/index.js"
+    },
+    "./a2ui-components/navbar/nav-data": {
+      "types": "./dist/a2ui-components/navbar/nav-data.d.ts",
+      "import": "./dist/a2ui-components/navbar/nav-data.js"
+    },
+    "./a2ui-components/navbar/nav-types": {
+      "types": "./dist/a2ui-components/navbar/nav-types.d.ts",
+      "import": "./dist/a2ui-components/navbar/nav-types.js"
+    },
+    "./a2ui-components/shadcnui": {
+      "types": "./dist/a2ui-components/shadcnui/index.d.ts",
+      "import": "./dist/a2ui-components/shadcnui/index.js"
+    },
+    "./a2ui-components/shadcnui/typography": {
+      "types": "./dist/a2ui-components/shadcnui/typography.d.ts",
+      "import": "./dist/a2ui-components/shadcnui/typography.js"
+    },
+    "./a2ui-components/shadcnui/typography.example": {
+      "types": "./dist/a2ui-components/shadcnui/typography.example.d.ts",
+      "import": "./dist/a2ui-components/shadcnui/typography.example.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup && bun run build:css",
+    "build:css": "bunx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.tmp.css --minify && bunx postcss ./dist/styles.tmp.css -o ./dist/styles.css && rm ./dist/styles.tmp.css",
+    "dev": "tsup --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.longbridge-inc.com:2222/long-bridge-frontend/a2ui-component.git",
+    "directory": "a2ui-react-renderer"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/"
+  },
+  "resolutions": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  },
+  "peerDependencies": {
+    "@a2ui-web/animations": "^0.8.1",
+    "@a2ui-web/assets": "^0.8.0",
+    "@a2ui-web/lit-core": "^0.8.2",
+    "@a2ui-web/shadcn-ui": "^0.8.3",
+    "react": ">=17"
+  },
+  "devDependencies": {
+    "@a2ui-web/animations": "^0.8.1",
+    "@a2ui-web/assets": "^0.8.0",
+    "@a2ui-web/config-postcss": "^0.8.0",
+    "@a2ui-web/config-tailwind": "^0.8.0",
+    "@a2ui-web/config-typescript": "^0.8.0",
+    "@a2ui-web/lit-core": "^0.8.2",
+    "@a2ui-web/shadcn-ui": "^0.8.3",
+    "@tailwindcss/postcss": "^4.0.0",
+    "class-variance-authority": "^0.7.1",
+    "@types/react": "^17.0.0 || ^18.0.0",
+    "@types/use-sync-external-store": "^1.5.0",
+    "lightningcss-cli": "^1.30.2",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0",
+    "tailwindcss": "^4.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@a2ui-web/animations": "^0.8.1",
+    "@a2ui-web/assets": "^0.8.0",
+    "@a2ui-web/lit-core": "^0.8.2",
+    "@a2ui-web/shadcn-ui": "^0.8.3",
+    "use-sync-external-store": "^1.6.0"
+  }
+}

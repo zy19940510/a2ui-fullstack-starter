@@ -26,10 +26,14 @@
 
 ```
 a2ui-test/
-├── packages/
-│   ├── agent/          # LangGraph Agent
+├── apps/
+│   ├── ai-agent/       # LangGraph Agent
 │   ├── gateway/        # FastAPI 网关
 │   └── web/            # Next.js 前端
+├── packages/
+│   ├── a2ui-web/       # a2ui-web 组件与配置包
+│   ├── docs/           # 组件文档
+│   └── mcp/            # MCP 服务
 └── docs/
     ├── ARCHITECTURE.md      # 架构文档
     └── LLM_CONFIGURATION.md # LLM 配置指南
@@ -45,7 +49,7 @@ git clone https://github.com/yourusername/a2ui-test.git
 cd a2ui-test
 
 # 安装 Python 依赖
-cd packages/agent && uv sync
+cd apps/ai-agent && uv sync
 cd ../gateway && uv sync
 
 # 安装前端依赖
@@ -57,7 +61,7 @@ npm install  # 或 bun install
 
 ```bash
 # 复制环境变量模板
-cp packages/agent/.env.example packages/agent/.env
+cp apps/ai-agent/.env.example apps/ai-agent/.env
 
 # 编辑 .env 文件，填入你的 API Key
 # 使用 Anthropic API (推荐):
@@ -73,14 +77,14 @@ cp packages/agent/.env.example packages/agent/.env
 **终端 1 - 启动 Gateway:**
 
 ```bash
-cd packages/gateway
+cd apps/gateway
 uv run uvicorn main:app --reload --port 8000
 ```
 
 **终端 2 - 启动前端:**
 
 ```bash
-cd packages/web
+cd apps/web
 npm run dev
 ```
 
@@ -128,7 +132,7 @@ Agent 支持以下工具:
 
 ### 添加新工具
 
-在 `packages/agent/src/tools.py` 中添加新工具:
+在 `apps/ai-agent/src/tools.py` 中添加新工具:
 
 ```python
 from langchain_core.tools import tool
@@ -142,8 +146,8 @@ def my_tool(param: str) -> str:
 
 ### 添加 A2UI 组件
 
-1. 在 `packages/web/a2ui-components/` 创建组件
-2. 在 `packages/web/lib/customCatalog.ts` 注册组件
+1. 在 `apps/web/a2ui-components/` 创建组件
+2. 在 `apps/web/lib/customCatalog.ts` 注册组件
 3. 在 Agent 中返回符合 A2UI 0.8 协议的消息
 
 ## 🤝 贡献

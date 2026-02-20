@@ -1,0 +1,40 @@
+{
+  "name": "@a2ui-web/config-typescript",
+  "version": "0.8.0",
+  "description": "Shared TypeScript configuration for a2ui-web projects",
+  "author": "a2ui-web",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.longbridge-inc.com:2222/long-bridge-frontend/a2ui-component.git",
+    "directory": "config-typescript"
+  },
+  "exports": {
+    "./base": "./base.json",
+    "./base.json": "./base.json",
+    "./nextjs": "./nextjs.json",
+    "./nextjs.json": "./nextjs.json",
+    "./react": "./react.json",
+    "./react.json": "./react.json",
+    "./css-modules": "./css-modules.d.ts"
+  },
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "react.json",
+    "css-modules.d.ts",
+    "README.md"
+  ],
+  "dependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/"
+  }
+}

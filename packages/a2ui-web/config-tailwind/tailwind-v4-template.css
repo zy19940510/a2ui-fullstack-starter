@@ -1,0 +1,156 @@
+/**
+ * Tailwind CSS v4 Design Tokens Template
+ * 
+ * 云溪专用 Design System
+ * Source: https://www.figma.com/design/NnrCx3x3PVukxpFxxObdXg/云溪专用?node-id=23-18636
+ * 
+ * Usage:
+ * 1. Copy this file to your project (e.g., src/theme.css)
+ * 2. Replace placeholder values with your design system tokens
+ * 3. Import in your main CSS file:
+ *    @import "tailwindcss";
+ *    @import "./theme.css";
+ */
+
+@import "tailwindcss";
+
+@theme {
+  /* ============================================================
+   * COLORS - 云溪专用设计规范
+   * ============================================================ */
+  
+  /* --- 品牌色系 Brand Colors --- */
+  --color-brand: #37a0ff;
+  --color-brand-primary: #37a0ff;
+  --color-brand-secondary: #ebf5ff;
+
+  /* --- 涨跌色系 Market Colors --- */
+  --color-market-up: #ff5000;
+  --color-market-down: #00b99a;
+
+  /* --- 文本色系 Text Colors --- */
+  --color-text-1: #000000;
+  --color-text-1-supplement: #464f56;
+  --color-text-2: #82888d;
+  --color-text-3: #afb3b6;
+
+  /* --- 控件色系 Control Colors --- */
+  --color-control-card-border: #e2e3e4;
+  --color-control-divider: #eaebec;
+  --color-control-background: #f5f6f6;
+
+  /* --- 框架色系 Frame Colors --- */
+  --color-frame-card: #ffffff;
+  --color-frame-background: #f8f9fa;
+  --color-frame-header: #f1f0f2;
+
+  /* --- 按钮色系 Button Colors --- */
+  --color-button-primary: #37a0ff;
+  --color-button-primary-hover: #289dfc;
+  --color-button-border: #c7cacc;
+  --color-button-disabled: #c7cacc;
+  --color-button-hover-overlay: rgba(234, 235, 236, 0.25);
+
+  /* --- 边框色系 Border Colors --- */
+  --color-border: #eaebec;
+  --color-border-card: #e2e3e4;
+  --color-border-outline: #c7c4cc;
+
+  /* --- 语义化别名 Semantic Aliases --- */
+  --color-page: #f8f9fa;
+  --color-card: #ffffff;
+  --color-surface: #f5f6f6;
+
+  /* --- CSS 变量主题 Theme Variables --- */
+  --color-canvas: #f8f9fa;
+  --color-ink: #000000;
+  --color-muted: #82888d;
+  --color-accent: #37a0ff;
+  --color-accent-strong: #37a0ff;
+  --color-accent-soft: rgba(55, 160, 255, 0.1);
+  --color-panel: #ffffff;
+  --color-panel-border: #eaebec;
+
+  /* --- 暗色模式基础色 --- */
+  --color-dark-0: #1c1c28;
+
+  /* ============================================================
+   * TYPOGRAPHY - 字体规范
+   * ============================================================ */
+
+  /* --- 字体家族 Font Families --- */
+  --font-sans: PingFang SC, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+  --font-display: SF Pro Display, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+
+  /* --- 字号规范 Font Sizes --- */
+  --text-xs: 12px;
+  --text-xs--line-height: 18px;
+
+  --text-xs-medium: 12px;
+  --text-xs-medium--line-height: 18px;
+
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+
+  --text-sm-medium: 14px;
+  --text-sm-medium--line-height: 20px;
+
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+
+  --text-base-regular: 16px;
+  --text-base-regular--line-height: 24px;
+
+  /* --- 字重 Font Weights --- */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+
+  /* ============================================================
+   * BORDER RADIUS - 圆角规范
+   * ============================================================ */
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* ============================================================
+   * SHADOWS - 阴影规范
+   * ============================================================ */
+
+  --shadow-drawer: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-panel: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+ * CSS VARIABLES FOR THEMING
+ * ============================================================ */
+
+:root {
+  --canvas: var(--color-canvas);
+  --ink: var(--color-ink);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --accent-strong: var(--color-accent-strong);
+  --accent-soft: var(--color-accent-soft);
+  --panel: var(--color-panel);
+  --panel-border: var(--color-panel-border);
+  --shadow: var(--shadow-panel);
+}
+
+/* ============================================================
+ * DARK MODE
+ * ============================================================ */
+
+[data-theme="dark"] {
+  --canvas: var(--color-dark-0);
+  --ink: #ffffff;
+  --panel: #2a2a3a;
+  --panel-border: #3a3a4a;
+}
+
+.dark {
+  --canvas: var(--color-dark-0);
+  --ink: #ffffff;
+  --panel: #2a2a3a;
+  --panel-border: #3a3a4a;
+}

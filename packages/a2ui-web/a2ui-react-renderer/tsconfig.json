@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@a2ui-web/config-typescript/react",
+  "compilerOptions": {
+    "paths": {
+      "@a2ui-web/custom-ui/*": ["../custom-ui/*"]
+    },
+    "skipLibCheck": true,
+    "noEmit": true,
+    "incremental": false,
+    "moduleResolution": "bundler",
+    "module": "esnext"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}

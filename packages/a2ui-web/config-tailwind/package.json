@@ -1,0 +1,34 @@
+{
+  "name": "@a2ui-web/config-tailwind",
+  "version": "0.8.0",
+  "description": "Tailwind CSS configuration for legacy projects (云溪专用 Figma design system)",
+  "author": "a2ui-web",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.longbridge-inc.com:2222/long-bridge-frontend/a2ui-component.git",
+    "directory": "config-tailwind"
+  },
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "style": "./index.css",
+      "import": "./index.js",
+      "require": "./index.js",
+      "default": "./index.js"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.css",
+    "README.md",
+    "DESIGN_TOKENS.md"
+  ],
+  "dependencies": {
+    "tailwindcss": "^4.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/"
+  }
+}

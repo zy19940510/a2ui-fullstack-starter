@@ -1,0 +1,47 @@
+{
+  "name": "@a2ui-web/config-postcss",
+  "version": "0.8.0",
+  "description": "Shared PostCSS configuration for a2ui-web projects",
+  "author": "a2ui-web",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@gitlab.longbridge-inc.com:2222/long-bridge-frontend/a2ui-component.git",
+    "directory": "config-postcss"
+  },
+  "main": "index.mjs",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.mjs"
+    },
+    "./postcss": {
+      "import": "./postcss.js",
+      "require": "./postcss.js"
+    },
+    "./@tailwindcss/postcss": {
+      "import": "./tailwindcss-postcss.js",
+      "require": "./tailwindcss-postcss.js"
+    }
+  },
+  "files": [
+    "index.mjs",
+    "index.d.ts",
+    "postcss.js",
+    "tailwindcss-postcss.js",
+    "README.md"
+  ],
+  "dependencies": {
+    "postcss": "^8.0.0",
+    "@tailwindcss/postcss": "^4.0.0"
+  },
+  "peerDependencies": {
+    "postcss": "^8.0.0",
+    "@tailwindcss/postcss": "^4.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://gitlab.longbridge-inc.com/api/v4/projects/4872/packages/npm/"
+  }
+}

@@ -1,0 +1,167 @@
+/**
+ * 云溪专用 Design System - Tailwind CSS v4 Configuration
+ * Source: https://www.figma.com/design/NnrCx3x3PVukxpFxxObdXg/云溪专用?node-id=23-18636
+ * 
+ * Design Token Categories:
+ * ========================
+ * 
+ * 【品牌色系 Brand Colors】
+ * - 品牌主色: #37A0FF
+ * - 品牌辅助色: #EBF5FF
+ * 
+ * 【涨跌色系 Market Colors】
+ * - 涨/买入/卖出色·橙: #FF5000
+ * - 涨/买入/卖出色·绿: #00B99A
+ * 
+ * 【文本色系 Text Colors】
+ * - 一级字体色: #000000
+ * - 一级补充字: #464F56 (较重要但需与一级色拉开差异)
+ * - 二级字体色: #82888D (副文本内容)
+ * - 三级字体色: #AFB3B6 (辅助说明及弱文本信息)
+ * 
+ * 【控件色系 Control Colors】
+ * - 卡片描边色: #E2E3E4
+ * - 分割线色: #EAEBEC
+ * - 控件背景色: #F5F6F6
+ * 
+ * 【框架色系 Frame Colors】
+ * - 一级卡片色: #FFFFFF
+ * - 背景色: #F8F9FA
+ * - 表头背景色: #F1F0F2
+ * 
+ * 【按钮色系 Button Colors】
+ * - 主按钮色: #37A0FF
+ * - 主按钮Hover色: #289DFC
+ * - 辅助按钮描边色: #C7CACC
+ * - 不可用按钮色: #C7CACC
+ * - Hover 叠加色: #EAEBEC (25% opacity)
+ * 
+ * 【字体 Typography】
+ * - 中文字体: PingFang SC
+ * - 英文字体: SF Pro Display
+ * 
+ * 【字号规范 Font Size】
+ * - 12/R: 12px / 18px / 400
+ * - 12/M: 12px / 18px / 500
+ * - 14/R: 14px / 20px / 400
+ * - 14/M: 14px / 20px / 500
+ * - 16/M: 16px / 24px / 500
+ * 
+ * 【圆角 Border Radius】
+ * - sm: 4px
+ * - md: 8px
+ * - lg: 12px
+ * 
+ * 【阴影 Shadows】
+ * - drawer: 0 -2px 8px rgba(0, 0, 0, 0.08)
+ * 
+ * 【按钮尺寸 Button Sizes】
+ * - 大型按钮: 高度 40px, 圆角 8px, 边距 16px/20px
+ * - 中型按钮: 高度 36px, 圆角 8px, 边距 16px
+ * - 小型按钮: 高度 28px, 圆角 4px, 边距 12px
+ */
+
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #37a0ff;
+  --color-brand-primary: #37a0ff;
+  --color-brand-secondary: #ebf5ff;
+
+  --color-market-up: #ff5000;
+  --color-market-down: #00b99a;
+
+  --color-text-1: #000000;
+  --color-text-1-supplement: #464f56;
+  --color-text-2: #82888d;
+  --color-text-3: #afb3b6;
+
+  --color-control-card-border: #e2e3e4;
+  --color-control-divider: #eaebec;
+  --color-control-background: #f5f6f6;
+
+  --color-frame-card: #ffffff;
+  --color-frame-background: #f8f9fa;
+  --color-frame-header: #f1f0f2;
+
+  --color-button-primary: #37a0ff;
+  --color-button-primary-hover: #289dfc;
+  --color-button-border: #c7cacc;
+  --color-button-disabled: #c7cacc;
+  --color-button-hover-overlay: rgba(234, 235, 236, 0.25);
+
+  --color-border: #eaebec;
+  --color-border-card: #e2e3e4;
+  --color-border-outline: #c7c4cc;
+  --color-page: #f8f9fa;
+  --color-card: #ffffff;
+  --color-surface: #f5f6f6;
+
+  --color-canvas: #f8f9fa;
+  --color-ink: #000000;
+  --color-muted: #82888d;
+  --color-accent: #37a0ff;
+  --color-accent-strong: #37a0ff;
+  --color-accent-soft: rgba(55, 160, 255, 0.1);
+  --color-panel: #ffffff;
+  --color-panel-border: #eaebec;
+
+  --color-dark-0: #1c1c28;
+
+  --font-sans: PingFang SC, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+  --font-display: SF Pro Display, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
+
+  --text-xs: 12px;
+  --text-xs--line-height: 18px;
+
+  --text-xs-medium: 12px;
+  --text-xs-medium--line-height: 18px;
+
+  --text-sm: 14px;
+  --text-sm--line-height: 20px;
+
+  --text-sm-medium: 14px;
+  --text-sm-medium--line-height: 20px;
+
+  --text-base: 16px;
+  --text-base--line-height: 24px;
+
+  --text-base-regular: 16px;
+  --text-base-regular--line-height: 24px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-drawer: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-panel: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}
+
+:root {
+  --canvas: var(--color-canvas);
+  --ink: var(--color-ink);
+  --muted: var(--color-muted);
+  --accent: var(--color-accent);
+  --accent-strong: var(--color-accent-strong);
+  --accent-soft: var(--color-accent-soft);
+  --panel: var(--color-panel);
+  --panel-border: var(--color-panel-border);
+  --shadow: var(--shadow-panel);
+}
+
+[data-theme="dark"] {
+  --canvas: var(--color-dark-0);
+  --ink: #ffffff;
+  --panel: #2a2a3a;
+  --panel-border: #3a3a4a;
+}
+
+.dark {
+  --canvas: var(--color-dark-0);
+  --ink: #ffffff;
+  --panel: #2a2a3a;
+  --panel-border: #3a3a4a;
+}

@@ -26,10 +26,14 @@ A complete AI Agent chat application with streaming output, tool calling, and cu
 
 ```
 a2ui-test/
-├── packages/
-│   ├── agent/          # LangGraph Agent
+├── apps/
+│   ├── ai-agent/       # LangGraph Agent
 │   ├── gateway/        # FastAPI Gateway
 │   └── web/            # Next.js Frontend
+├── packages/
+│   ├── a2ui-web/       # a2ui-web component and config packages
+│   ├── docs/           # Component docs
+│   └── mcp/            # MCP services
 └── docs/
     ├── ARCHITECTURE.md      # Architecture Documentation
     └── LLM_CONFIGURATION.md # LLM Configuration Guide
@@ -45,7 +49,7 @@ git clone https://github.com/yourusername/a2ui-test.git
 cd a2ui-test
 
 # Install Python dependencies
-cd packages/agent && uv sync
+cd apps/ai-agent && uv sync
 cd ../gateway && uv sync
 
 # Install frontend dependencies
@@ -57,7 +61,7 @@ npm install  # or bun install
 
 ```bash
 # Copy environment template
-cp packages/agent/.env.example packages/agent/.env
+cp apps/ai-agent/.env.example apps/ai-agent/.env
 
 # Edit .env file and fill in your API Key
 # Using Anthropic API (recommended):
@@ -73,14 +77,14 @@ See [LLM Configuration Guide](./docs/LLM_CONFIGURATION.md) for detailed configur
 **Terminal 1 - Start Gateway:**
 
 ```bash
-cd packages/gateway
+cd apps/gateway
 uv run uvicorn main:app --reload --port 8000
 ```
 
 **Terminal 2 - Start Frontend:**
 
 ```bash
-cd packages/web
+cd apps/web
 npm run dev
 ```
 
@@ -128,7 +132,7 @@ The Agent supports the following tools:
 
 ### Adding New Tools
 
-Add new tools in `packages/agent/src/tools.py`:
+Add new tools in `apps/ai-agent/src/tools.py`:
 
 ```python
 from langchain_core.tools import tool
@@ -142,8 +146,8 @@ def my_tool(param: str) -> str:
 
 ### Adding A2UI Components
 
-1. Create component in `packages/web/a2ui-components/`
-2. Register component in `packages/web/lib/customCatalog.ts`
+1. Create component in `apps/web/a2ui-components/`
+2. Register component in `apps/web/lib/customCatalog.ts`
 3. Return A2UI 0.8 protocol-compliant messages from Agent
 
 ## 🤝 Contributing

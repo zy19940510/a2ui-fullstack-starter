@@ -1,7 +1,7 @@
 # A2UI-Test: SSE 流式渲染框架设计文档
 
-> **最后更新**: 2026-02-01  
-> **版本**: v1.1 - 新增 A2UI 协议支持、Skill Loader、天气组件
+> **最后更新**: 2026-02-20  
+> **版本**: v1.2 - Monorepo 结构重构（apps + a2ui-web 包）
 
 ## 一、项目概述
 
@@ -30,47 +30,45 @@
 ~/code/a2ui-test/
 ├── README.md
 ├── docs/
-│   ├── ARCHITECTURE.md           # 本文档
+│   ├── ARCHITECTURE.md            # 本文档
 │   └── LLM_CONFIGURATION.md       # LLM 配置指南
 ├── .claude/
 │   └── skills/                    # Agent 技能库
-│       └── a2ui/                  # A2UI 生成技能
+│       └── a2ui/
 │           └── SKILL.md
-├── packages/
-│   ├── agent/                     # LangGraph Agent
+├── apps/
+│   ├── ai-agent/                  # LangGraph Agent
 │   │   ├── pyproject.toml
 │   │   ├── main.py                # CLI 入口
 │   │   └── src/
-│   │       ├── agent.py           # Agent 核心逻辑
-│   │       ├── tools.py           # 工具定义（天气/搜索/计算器）
-│   │       └── skill_loader.py    # Skill 动态加载器
+│   │       ├── agent.py
+│   │       ├── tools.py
+│   │       └── skill_loader.py
 │   ├── gateway/                   # FastAPI 中转服务
 │   │   ├── pyproject.toml
-│   │   ├── main.py                # FastAPI 入口
-│   │   └── src/
-│   │       └── routes/
-│   │           ├── chat.py        # SSE 聊天端点（含 A2UI 解析）
-│   │           └── health.py      # 健康检查
-│   ├── mcp/                       # MCP 组件文档服务
-│   │   └── ComponentDoc/
-│   │       └── main.py
+│   │   ├── main.py
+│   │   └── src/routes/
+│   │       ├── chat.py
+│   │       └── health.py
 │   └── web/                       # Next.js 前端
 │       ├── package.json
 │       ├── app/
-│       │   ├── page.tsx           # 聊天页面
-│       │   ├── weather/page.tsx   # 天气组件演示页
-│       │   ├── layout.tsx
-│       │   └── providers.tsx      # 主题 Provider
-│       ├── a2ui-components/       # 自定义 A2UI 组件库
-│       │   ├── weather/           # 天气卡片组件
-│       │   ├── button/
-│       │   ├── card/
-│       │   └── index.ts
+│       ├── a2ui-components/
 │       ├── hooks/
-│       │   └── useSSE.ts          # SSE Hook（支持 A2UI）
 │       └── lib/
-│           ├── customCatalog.ts   # A2UI 组件注册
-│           └── weather-messages.ts
+├── packages/
+│   ├── a2ui-web/                  # a2ui-web 全量包
+│   │   ├── a2ui-react-renderer/
+│   │   ├── animations/
+│   │   ├── assets/
+│   │   ├── config-postcss/
+│   │   ├── config-tailwind/
+│   │   ├── config-typescript/
+│   │   ├── lit-core/
+│   │   ├── shadcn-ui/
+│   │   └── utils/
+│   ├── docs/
+│   └── mcp/
 ```
 
 ---
@@ -190,7 +188,7 @@
 
 **目的**: 动态加载 `.claude/skills/` 中的技能文档，注入到 Agent 的 System Message。
 
-**实现**: `packages/agent/src/skill_loader.py`
+**实现**: `apps/ai-agent/src/skill_loader.py`
 
 ```python
 class SkillLoader:
@@ -235,7 +233,7 @@ This skill targets **A2UI Protocol v0.8** (Stable Release).
 
 **目的**: 从 LLM 输出中提取 A2UI JSON 消息并发送给前端。
 
-**实现**: `packages/gateway/src/routes/chat.py`
+**实现**: `apps/gateway/src/routes/chat.py`
 
 ```python
 def extract_a2ui_json(text: str) -> list:
@@ -282,7 +280,7 @@ def extract_a2ui_json(text: str) -> list:
 
 ### 4.3 前端 A2UI 渲染
 
-**自定义组件注册**: `packages/web/lib/customCatalog.ts`
+**自定义组件注册**: `apps/web/lib/customCatalog.ts`
 
 ```typescript
 import { WeatherCard } from "@/a2ui-components/weather";
@@ -303,7 +301,7 @@ const customCatalog = {
 };
 ```
 
-**渲染器集成**: `packages/web/app/page.tsx`
+**渲染器集成**: `apps/web/app/page.tsx`
 
 ```tsx
 import { A2UIRenderer } from "@anthropic-ai/a2ui-react-renderer";
@@ -319,7 +317,7 @@ import { A2UIRenderer } from "@anthropic-ai/a2ui-react-renderer";
 
 ### 4.4 工具系统
 
-**工具定义**: `packages/agent/src/tools.py`
+**工具定义**: `apps/ai-agent/src/tools.py`
 
 ```python
 from langchain_core.tools import tool
@@ -517,11 +515,11 @@ data: {"id":"done","content":{}}
 
 ```bash
 # Terminal 1: 启动 Gateway
-cd packages/gateway
+cd apps/gateway
 uv run uvicorn main:app --reload --port 8000
 
 # Terminal 2: 启动前端
-cd packages/web
+cd apps/web
 npm run dev
 ```
 
@@ -581,7 +579,7 @@ curl -X POST http://localhost:8000/api/chat/stream \
 
 ### 8.1 添加新工具
 
-1. 在 `packages/agent/src/tools.py` 添加:
+1. 在 `apps/ai-agent/src/tools.py` 添加:
 
 ```python
 @tool
@@ -600,7 +598,7 @@ def get_tools():
 
 ### 8.2 添加新 A2UI 组件
 
-1. 创建组件: `packages/web/a2ui-components/my-component/index.tsx`
+1. 创建组件: `apps/web/a2ui-components/my-component/index.tsx`
 
 ```tsx
 export function MyComponent({ data }: { data: string }) {
@@ -608,7 +606,7 @@ export function MyComponent({ data }: { data: string }) {
 }
 ```
 
-2. 注册到 catalog: `packages/web/lib/customCatalog.ts`
+2. 注册到 catalog: `apps/web/lib/customCatalog.ts`
 
 ```typescript
 components: {
@@ -753,6 +751,6 @@ system_message += skill_result['content']
 
 ---
 
-**文档版本**: v1.1  
-**最后更新**: 2026-02-01  
+**文档版本**: v1.2  
+**最后更新**: 2026-02-20  
 **维护者**: A2UI-Test Team

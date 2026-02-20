@@ -1,0 +1,7 @@
+@import "tailwindcss" prefix(auianim);
+
+/* 只扫描本包的源文件 */
+@source "./**/*.tsx";
+@source "./**/*.ts";
+
+@custom-variant dark (&:is(.dark *));
