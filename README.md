@@ -1,13 +1,15 @@
-# A2UI Test Monorepo
+# A2UI Full-Stack Starter
 
 [English](./README_EN.md) | 简体中文
 
-A2UI Test 是一个开源的 Monorepo 全栈示例，包含 Web 前端、Gateway 网关、AI Agent，以及供 Agent 消费的 ComponentDoc MCP 服务。
+> 🚀 Agent-driven UI with Next.js, FastAPI Gateway & LangGraph Agent
+
+A2UI Full-Stack Starter 是一个开源的 Monorepo 全栈示例，包含 Web 前端、Gateway 网关、AI Agent，以及供 Agent 消费的 ComponentDoc MCP 服务。
 
 ## 当前结构（最新）
 
 ```text
-a2ui-test/
+a2ui-fullstack-starter/
 ├── ARCHITECTURE.md
 ├── README.md
 ├── README_EN.md
